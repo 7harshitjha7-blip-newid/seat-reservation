@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+pydantic-settings
+python-dotenv
+sqlalchemy[asyncio]
+PyJWT
+httpx
+requests
+redis
+prometheus-client

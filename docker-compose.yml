@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: seat-reservation-postgres
+
+    environment:
+      POSTGRES_DB: seat_reservation
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d seat_reservation"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: .
+
+    container_name: seat-reservation-api
+
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/seat_reservation
+      JWT_SECRET: change-this-to-a-long-random-secret-for-local-docker
+      JWT_ALGORITHM: HS256
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
